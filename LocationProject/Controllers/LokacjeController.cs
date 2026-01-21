@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using LocationProject.Data;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using LocationProject.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LocationProject.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/lokacje")]
     public class lokacjeController : ControllerBase
@@ -55,6 +57,39 @@ namespace LocationProject.Controllers
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetLokacja), new { id = nowaLokacja.Id }, nowaLokacja);
         }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateLokacja(Guid Id, [FromBody] Lokacja zaktualizowanaLokacja)
+        {
+            if(Id != zaktualizowanaLokacja.Id)
+            {
+                return BadRequest();
+            }
+
+            var istniejacaLokacja = await _context.Lokacje.FindAsync(Id);
+            
+            if(istniejacaLokacja == null)
+            {
+                return NotFound();
+            }
+            istniejacaLokacja.Nazwa = zaktualizowanaLokacja.Nazwa;
+            istniejacaLokacja.Opis = zaktualizowanaLokacja.Opis;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteLokacja(Guid Id)
+        {
+            var lokacjaDoUsuniecia = await _context.Lokacje.FindAsync(Id);
+            if (lokacjaDoUsuniecia == null)
+            {
+                return NotFound();
+            }
+            _context.Lokacje.Remove(lokacjaDoUsuniecia);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
 
     }
 }
