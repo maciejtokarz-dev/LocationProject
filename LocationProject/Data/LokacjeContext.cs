@@ -13,5 +13,8 @@ namespace LocationProject.Data
         {
         }
         public DbSet<Lokacja> Lokacje { get; set; }
+        public DbSet<Roslina> Rosliny { get; set; }
+        public DbSet<Zwierze> Zwierzeta { get; set; }
+
     }
 }
