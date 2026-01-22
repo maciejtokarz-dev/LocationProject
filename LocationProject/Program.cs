@@ -34,7 +34,7 @@ namespace LocationProject
 
             app.UseHttpsRedirection();
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
@@ -42,6 +42,7 @@ namespace LocationProject
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
+            app.MapIdentityApi<IdentityUser>(); 
 
             app.Run();
         }
