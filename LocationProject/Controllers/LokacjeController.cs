@@ -4,6 +4,7 @@ using LocationProject.Data;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using LocationProject.Models;
 using Microsoft.AspNetCore.Authorization;
+using LocationProject.DTOs;
 
 namespace LocationProject.Controllers
 {
@@ -19,10 +20,46 @@ namespace LocationProject.Controllers
             _context = context;
         }
         [HttpGet]
-        public async Task<IActionResult> GetLokacje()
+        public async Task<IActionResult> GetLokacje(
+            [FromQuery] string? name,
+            [FromQuery] string? sortBy,
+            [FromQuery] string? sortDirection,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20
+            )
         {
-            var lokacje = await _context.Lokacje.ToListAsync();
-            return Ok(lokacje);
+            var query = _context.Lokacje.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.Where(l => l.Nazwa.Contains(name));
+            }
+           var dtoQuery = query
+                .Select(l => new LokacjaDto
+                 {
+                     Id = l.Id,
+                     Nazwa = l.Nazwa,
+                     Opis = l.Opis,
+                     LiczbaRoslin = l.Rosliny.Count(),
+                    LiczbaZwierzatek = l.Zwierzeta.Count()
+                 });
+            dtoQuery = (sortBy, sortDirection) switch
+            {
+                ("nazwa", "desc") => dtoQuery.OrderByDescending(x => x.Nazwa),
+                ("nazwa", _) => dtoQuery.OrderBy(l => l.Nazwa),
+                ("LiczbaRoslin", "desc") => dtoQuery.OrderByDescending(x => x.LiczbaRoslin),
+                ("LiczbaRoslin", _) => dtoQuery.OrderBy(l => l.LiczbaRoslin),
+                ("LiczbaZwierzatek", "desc") => dtoQuery.OrderByDescending(x => x.LiczbaZwierzatek),
+                ("LiczbaZwierzatek", _) => dtoQuery.OrderBy(l => l.LiczbaZwierzatek),
+                _ => dtoQuery.OrderBy(x => x.Nazwa)
+            };
+            dtoQuery = dtoQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
+
+            var result = await dtoQuery.ToListAsync();
+
+            return Ok(result);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetLokacja(Guid id)
