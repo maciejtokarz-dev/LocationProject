@@ -34,14 +34,14 @@ namespace LocationProject.Controllers
             {
                 query = query.Where(l => l.Nazwa.Contains(name));
             }
-           var dtoQuery = query
-                .Select(l => new LokacjaDto
+            var dtoQuery = query
+                 .Select(l => new LokacjaDto
                  {
                      Id = l.Id,
                      Nazwa = l.Nazwa,
                      Opis = l.Opis,
                      LiczbaRoslin = l.Rosliny.Count(),
-                    LiczbaZwierzatek = l.Zwierzeta.Count()
+                     LiczbaZwierzatek = l.Zwierzeta.Count()
                  });
             dtoQuery = (sortBy, sortDirection) switch
             {
@@ -60,6 +60,28 @@ namespace LocationProject.Controllers
             var result = await dtoQuery.ToListAsync();
 
             return Ok(result);
+        }
+        [HttpGet("{id}/podsumowanie")]
+        public async Task<IActionResult> GetLokacjaPodsumowanie(Guid id)
+        {
+            var getPodsumowanie = await _context.Lokacje
+                    .Where(l => l.Id == id)
+                    .Select(l => new LokacjaDto
+                    {
+                        Id = l.Id,
+                        Nazwa = l.Nazwa,
+                        Opis = l.Opis,
+                        LiczbaRoslin = l.Rosliny.Count(),
+                        LiczbaZwierzatek = l.Zwierzeta.Count()
+                    })
+                    .FirstOrDefaultAsync();
+
+            if (getPodsumowanie == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(getPodsumowanie);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetLokacja(Guid id)
