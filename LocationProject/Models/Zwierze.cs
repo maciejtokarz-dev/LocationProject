@@ -7,7 +7,7 @@ namespace LocationProject.Models
     {
         public Guid Id { get; set; }
         public string Nazwa { get; set; } = null!;   
-        public Guid LokacjaId{ get; set; }
+        public Guid LokacjaId { get; set; }
         [ForeignKey(nameof(LokacjaId))]
         public Lokacja? Lokacja { get; set; }   
     }
