@@ -28,6 +28,11 @@ namespace LocationProject.Controllers
             [FromQuery] int pageSize = 20
             )
         {
+            if(pageSize > 100)
+            {
+                pageSize = 100;
+            }
+
             var query = _context.Lokacje.AsQueryable();
 
             if (!string.IsNullOrEmpty(name))
@@ -53,13 +58,21 @@ namespace LocationProject.Controllers
                 ("LiczbaZwierzatek", _) => dtoQuery.OrderBy(l => l.LiczbaZwierzatek),
                 _ => dtoQuery.OrderBy(x => x.Nazwa)
             };
+            var totalCount = await query.CountAsync();
+
             dtoQuery = dtoQuery
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize);
 
             var result = await dtoQuery.ToListAsync();
 
-            return Ok(result);
+            return Ok(new
+            {
+                Items = result,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            });
         }
         [HttpGet("{id}/podsumowanie")]
         public async Task<IActionResult> GetLokacjaPodsumowanie(Guid id)
