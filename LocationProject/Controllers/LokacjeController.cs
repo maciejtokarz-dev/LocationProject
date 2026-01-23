@@ -48,14 +48,14 @@ namespace LocationProject.Controllers
                      LiczbaRoslin = l.Rosliny.Count(),
                      LiczbaZwierzatek = l.Zwierzeta.Count()
                  });
-            dtoQuery = (sortBy, sortDirection) switch
+            dtoQuery = (sortBy?.ToLower(), sortDirection?.ToLower()) switch
             {
                 ("nazwa", "desc") => dtoQuery.OrderByDescending(x => x.Nazwa),
                 ("nazwa", _) => dtoQuery.OrderBy(l => l.Nazwa),
-                ("LiczbaRoslin", "desc") => dtoQuery.OrderByDescending(x => x.LiczbaRoslin),
-                ("LiczbaRoslin", _) => dtoQuery.OrderBy(l => l.LiczbaRoslin),
-                ("LiczbaZwierzatek", "desc") => dtoQuery.OrderByDescending(x => x.LiczbaZwierzatek),
-                ("LiczbaZwierzatek", _) => dtoQuery.OrderBy(l => l.LiczbaZwierzatek),
+                ("liczbaroslin", "desc") => dtoQuery.OrderByDescending(x => x.LiczbaRoslin),
+                ("liczbaroslin", _) => dtoQuery.OrderBy(l => l.LiczbaRoslin),
+                ("liczbazwierzatek", "desc") => dtoQuery.OrderByDescending(x => x.LiczbaZwierzatek),
+                ("liczbazwierzatek", _) => dtoQuery.OrderBy(l => l.LiczbaZwierzatek),
                 _ => dtoQuery.OrderBy(x => x.Nazwa)
             };
             var totalCount = await query.CountAsync();
